@@ -5,12 +5,7 @@ CREATE TABLE users
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
     email TEXT NOT NULL
-        CHECK (position('@' IN email) > 1)
+        CHECK (position('@' IN email) > 1),
+    highscore INT NOT NULL DEFAULT 0
 );
 
-CREATE TABLE highscores
-(
-    username VARCHAR(25)
-        REFERENCES users ON DELETE CASCADE,
-    highscore INTEGER NOT NULL
-);
