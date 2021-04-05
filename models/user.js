@@ -144,7 +144,6 @@ class User {
   }
 
   //remove existing user
-  //
   static async remove(username) {
     let result = await db.query(
       `DELETE
