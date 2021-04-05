@@ -5,8 +5,6 @@ const { BCRYPT_WORK_FACTOR } = require("../config");
 async function commonBeforeAll() {
   await db.query("DELETE FROM users");
 
-  console.log("running before all function");
-
   await db.query(
     `
         INSERT INTO users(username,

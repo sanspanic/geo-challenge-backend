@@ -6,6 +6,7 @@ const {
   UnauthorizedError,
 } = require("../expressError");
 const { BCRYPT_WORK_FACTOR } = require("../config.js");
+const { sqlForPartialUpdate } = require("../helpers/sql");
 
 class User {
   // authenticates user with username, password
@@ -26,7 +27,7 @@ class User {
     const user = result.rows[0];
 
     if (user) {
-      // compare hashed password in db to new hash of password input
+      // compare hashed password in db to password input
       const isValid = await bcrypt.compare(password, user.password);
       if (isValid) {
         delete user.password;
@@ -87,6 +88,58 @@ class User {
 
     const user = res.rows[0];
     if (!user) throw new NotFoundError(`No such user: ${username}`);
+    return user;
+  }
+
+  //update existing user
+  //can be partial update
+  //{data} => {username, firstName, lastName, email}
+  static async update(username, data) {
+    const result = await db.query(
+      `SELECT username, password
+             FROM users
+             WHERE username = $1`,
+      [username]
+    );
+    if (!result.rows[0]) throw new NotFoundError(`No such user: ${username}`);
+    const { password } = result.rows[0];
+
+    //compare hashed password in db to input password
+    const isValid = await bcrypt.compare(data.password, password);
+    if (!isValid) {
+      throw new UnauthorizedError("Invalid password");
+    }
+
+    //check for duplicate username
+    if (data.username) {
+      const duplicateCheck = await db.query(
+        `SELECT username
+            FROM users
+            WHERE username = $1`,
+        [data.username]
+      );
+
+      if (duplicateCheck.rows[0]) {
+        throw new BadRequestError(`Username already exists: ${username}`);
+      }
+    }
+
+    const { setCols, values } = sqlForPartialUpdate(data, {
+      firstName: "first_name",
+      lastName: "last_name",
+    });
+    const usernameVarIdx = "$" + (values.length + 1);
+
+    const querySql = `UPDATE users 
+                      SET ${setCols} 
+                      WHERE username = ${usernameVarIdx} 
+                      RETURNING username,
+                                first_name AS "firstName",
+                                last_name AS "lastName",
+                                email`;
+    const res = await db.query(querySql, [...values, username]);
+    const user = res.rows[0];
+    delete user.password;
     return user;
   }
 }

@@ -1,3 +1,6 @@
+const bcrypt = require("bcrypt");
+const { BCRYPT_WORK_FACTOR } = require("../config");
+
 const {
   NotFoundError,
   BadRequestError,
@@ -89,7 +92,7 @@ describe("register", function () {
 
 // get user by username ***********************************
 describe("get user by username", () => {
-  u1 = {
+  const u1 = {
     username: "u1",
     firstName: "U1F",
     lastName: "U1L",
@@ -102,12 +105,70 @@ describe("get user by username", () => {
     expect(user).toEqual(u1);
   });
 
-  test("bad request with non-existing username", async () => {
+  test("not found if no such username", async () => {
     try {
-      let user = await User.get("idontexist");
+      await User.get("idontexist");
       fail();
     } catch (e) {
       expect(e instanceof NotFoundError).toBeTruthy();
+    }
+  });
+});
+
+// update user details ***********************************
+describe("update user details", () => {
+  const updateData = {
+    username: "u1_new",
+    firstName: "U1F_new",
+  };
+
+  test("works", async function () {
+    let user = await User.update("u1", {
+      ...updateData,
+      password: "password1",
+    });
+    expect(user).toEqual({
+      ...updateData,
+      lastName: "U1L",
+      email: "u1@email.com",
+    });
+  });
+
+  test("not found if no such user", async function () {
+    try {
+      await User.update("nope", {
+        firstName: "test",
+      });
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+
+  test("bad request if no data", async function () {
+    try {
+      await User.update("u1", { password: "password1" });
+      fail();
+    } catch (err) {
+      expect(err instanceof BadRequestError).toBeTruthy();
+    }
+  });
+
+  test("unauth if wrong password", async function () {
+    try {
+      await User.update("u1", { password: "wrongpw" });
+      fail();
+    } catch (err) {
+      expect(err instanceof UnauthorizedError).toBeTruthy();
+    }
+  });
+
+  test("bad request if duplicate username", async function () {
+    try {
+      await User.update("u1", { username: "u2", password: "password1" });
+      fail();
+    } catch (err) {
+      expect(err instanceof BadRequestError).toBeTruthy();
     }
   });
 });
