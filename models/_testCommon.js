@@ -4,7 +4,6 @@ const { BCRYPT_WORK_FACTOR } = require("../config");
 
 async function commonBeforeAll() {
   await db.query("DELETE FROM users");
-  await db.query("DELETE FROM highscores");
 
   console.log("running before all function");
 
@@ -14,9 +13,10 @@ async function commonBeforeAll() {
                           password,
                           first_name,
                           last_name,
-                          email)
-        VALUES ('u1', $1, 'U1F', 'U1L', 'u1@email.com'),
-               ('u2', $2, 'U2F', 'U2L', 'u2@email.com')
+                          email,
+                          highscore)
+        VALUES ('u1', $1, 'U1F', 'U1L', 'u1@email.com', 100),
+               ('u2', $2, 'U2F', 'U2L', 'u2@email.com', 200)
         RETURNING username`,
     [
       await bcrypt.hash("password1", BCRYPT_WORK_FACTOR),
