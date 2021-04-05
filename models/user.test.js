@@ -172,3 +172,21 @@ describe("update user details", () => {
     }
   });
 });
+
+// remove user ***********************************
+describe("remove", function () {
+  test("works", async function () {
+    await User.remove("u1");
+    const res = await db.query("SELECT * FROM users WHERE username='u1'");
+    expect(res.rows.length).toEqual(0);
+  });
+
+  test("not found if no such user", async function () {
+    try {
+      await User.remove("nope");
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+});
