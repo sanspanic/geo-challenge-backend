@@ -12,3 +12,8 @@
 - jsonschema
 - node-pg
 - jest
+- auth with jwts
+
+### Features:
+
+This is a backend for a geography game. The user will be able to play a number of levels upon registration. Authentication is achieved via JWTs. The backend stores user information as well as highscores.
