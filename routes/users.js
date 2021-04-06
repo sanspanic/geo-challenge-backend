@@ -52,4 +52,20 @@ router.patch(
   }
 );
 
+// [DELETE] /users/:username
+// auth required: logged in and user.username must be :username
+router.delete(
+  "/:username",
+  ensureLoggedIn,
+  ensureSelf,
+  async function (req, res, next) {
+    try {
+      await User.remove(req.params.username);
+      return res.json({ deleted: req.params.username });
+    } catch (err) {
+      return next(err);
+    }
+  }
+);
+
 module.exports = router;
