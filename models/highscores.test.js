@@ -11,7 +11,6 @@ const {
   commonAfterAll,
 } = require("./_testCommon");
 
-const db = require("../db.js");
 const Highscores = require("./highscores.js");
 
 beforeAll(commonBeforeAll);
