@@ -102,16 +102,16 @@ class User {
       [username]
     );
     if (!result.rows[0]) throw new NotFoundError(`No such user: ${username}`);
-    const { password } = result.rows[0];
+    const currUser = result.rows[0];
 
     //compare hashed password in db to input password
-    const isValid = await bcrypt.compare(data.password, password);
+    const isValid = await bcrypt.compare(data.password, currUser.password);
     if (!isValid) {
       throw new UnauthorizedError("Invalid password");
     }
 
-    //check for duplicate username
-    if (data.username) {
+    //check for duplicate username only if user changing username
+    if (data.username && data.username !== currUser.username) {
       const duplicateCheck = await db.query(
         `SELECT username
             FROM users
@@ -120,10 +120,15 @@ class User {
       );
 
       if (duplicateCheck.rows[0]) {
-        throw new BadRequestError(`Username already exists: ${username}`);
+        throw new BadRequestError(`Username already exists: ${data.username}`);
       }
     }
 
+    //remove password so it doesn't get changed
+    delete data.password;
+    if (Object.keys(data).length === 0) {
+      throw new BadRequestError("No data given");
+    }
     const { setCols, values } = sqlForPartialUpdate(data, {
       firstName: "first_name",
       lastName: "last_name",
@@ -136,7 +141,7 @@ class User {
                       RETURNING username,
                                 first_name AS "firstName",
                                 last_name AS "lastName",
-                                email`;
+                                email, highscore`;
     const res = await db.query(querySql, [...values, username]);
     const user = res.rows[0];
     delete user.password;

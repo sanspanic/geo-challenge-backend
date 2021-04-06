@@ -128,6 +128,7 @@ describe("update user details", () => {
       ...updateData,
       lastName: "U1L",
       email: "u1@email.com",
+      highscore: 100,
     });
   });
 
