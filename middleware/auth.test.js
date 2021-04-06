@@ -42,3 +42,43 @@ describe("authenticateJWT", function () {
     expect(res.locals).toEqual({});
   });
 });
+
+describe("ensureLoggedIn", function () {
+  test("works", function () {
+    const req = {};
+    const res = { locals: { user: { username: "test" } } };
+    const next = function (err) {
+      expect(err).toBeFalsy();
+    };
+    ensureLoggedIn(req, res, next);
+  });
+
+  test("unauth if not logged in", function () {
+    const req = {};
+    const res = { locals: {} };
+    const next = function (err) {
+      expect(err instanceof UnauthorizedError).toBeTruthy();
+    };
+    ensureLoggedIn(req, res, next);
+  });
+});
+
+describe("ensure correct user", function () {
+  test("works: user is self", function () {
+    const req = { params: { username: "test" } };
+    const res = { locals: { user: { username: "test" } } };
+    const next = function (err) {
+      expect(err).toBeFalsy();
+    };
+    ensureSelf(req, res, next);
+  });
+
+  test("unauth if user not self", function () {
+    const req = { params: { username: "wrong" } };
+    const res = { locals: { user: { username: "test" } } };
+    const next = function (err) {
+      expect(err instanceof UnauthorizedError).toBeTruthy();
+    };
+    ensureSelf(req, res, next);
+  });
+});
