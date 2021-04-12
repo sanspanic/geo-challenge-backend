@@ -25,6 +25,7 @@ router.patch(
         req.params.username,
         req.body.score
       );
+      console.log("highscore on backend: ", highscore);
       return res.json(highscore);
     } catch (err) {
       return next(err);

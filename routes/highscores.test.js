@@ -55,7 +55,7 @@ describe("PATCH /highscores/:username", function () {
       .send({ score: 0 })
       .set("authorization", `Bearer ${u1Token}`);
     expect(resp.statusCode).toEqual(200);
-    expect(resp.body).toEqual("No new highscore");
+    expect(resp.body).toEqual({ msg: "No new highscore" });
   });
 
   test("unauth if user not self", async function () {

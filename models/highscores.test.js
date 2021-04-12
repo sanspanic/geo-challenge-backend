@@ -36,6 +36,6 @@ describe("update highscores", function () {
 
   test("works: doesn't update if score smaller than current highscore", async function () {
     let res = await Highscores.updateHighscore("u1", 100);
-    expect(res).toEqual("No new highscore");
+    expect(res).toEqual({ msg: "No new highscore" });
   });
 });
