@@ -21,13 +21,19 @@ class Highscores {
   }
 
   static async updateHighscore(username, score) {
-    const result = await db.query(
-      `UPDATE users
+    const currScore = await db.query(
+      `SELECT highscore FROM users WHERE username = $1`,
+      [username]
+    );
+    if (currScore.rows[0].highscore < score) {
+      const result = await db.query(
+        `UPDATE users
       SET highscore=$1 WHERE username = $2 
       RETURNING highscore`,
-      [score, username]
-    );
-    return result.rows[0];
+        [score, username]
+      );
+      return result.rows[0];
+    } else return "No new highscore";
   }
 }
 

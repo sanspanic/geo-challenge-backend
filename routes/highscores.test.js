@@ -49,6 +49,15 @@ describe("PATCH /highscores/:username", function () {
     expect(resp.body).toEqual({ highscore: 500 });
   });
 
+  test("works: no update if score lower than current highscore", async function () {
+    const resp = await request(app)
+      .patch("/highscores/u1")
+      .send({ score: 0 })
+      .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.statusCode).toEqual(200);
+    expect(resp.body).toEqual("No new highscore");
+  });
+
   test("unauth if user not self", async function () {
     const resp = await request(app)
       .patch("/highscores/u2")
@@ -61,7 +70,6 @@ describe("PATCH /highscores/:username", function () {
     const resp = await request(app)
       .patch("/highscores/u1")
       .send({ score: 500 });
-
     expect(resp.statusCode).toEqual(401);
   });
 });
