@@ -1,6 +1,6 @@
 const Highscores = require("../models/highscores");
 const express = require("express");
-const { ensureLoggedIn } = require("../middleware/auth");
+const { ensureLoggedIn, ensureSelf } = require("../middleware/auth");
 const router = new express.Router();
 
 // [GET] /
@@ -14,5 +14,22 @@ router.get("/", ensureLoggedIn, async function (req, res, next) {
     return next(err);
   }
 });
+
+router.patch(
+  "/:username",
+  ensureLoggedIn,
+  ensureSelf,
+  async function (req, res, next) {
+    try {
+      const highscore = await Highscores.updateHighscore(
+        req.params.username,
+        req.body.score
+      );
+      return res.json(highscore);
+    } catch (err) {
+      return next(err);
+    }
+  }
+);
 
 module.exports = router;

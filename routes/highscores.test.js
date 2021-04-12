@@ -37,3 +37,31 @@ describe("GET /highscores", function () {
     expect(resp.statusCode).toEqual(401);
   });
 });
+
+// [PATCH] / ********************************************
+describe("PATCH /highscores/:username", function () {
+  test("works", async function () {
+    const resp = await request(app)
+      .patch("/highscores/u1")
+      .send({ score: 500 })
+      .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.statusCode).toEqual(200);
+    expect(resp.body).toEqual({ highscore: 500 });
+  });
+
+  test("unauth if user not self", async function () {
+    const resp = await request(app)
+      .patch("/highscores/u2")
+      .send({ score: 500 })
+      .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.statusCode).toEqual(401);
+  });
+
+  test("unauth if not logged in", async function () {
+    const resp = await request(app)
+      .patch("/highscores/u1")
+      .send({ score: 500 });
+
+    expect(resp.statusCode).toEqual(401);
+  });
+});

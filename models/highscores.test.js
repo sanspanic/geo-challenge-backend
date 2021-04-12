@@ -27,3 +27,10 @@ describe("get highscores", function () {
     ]);
   });
 });
+
+describe("update highscores", function () {
+  test("works", async function () {
+    let res = await Highscores.updateHighscore("u1", 500);
+    expect(res).toEqual({ highscore: 500 });
+  });
+});

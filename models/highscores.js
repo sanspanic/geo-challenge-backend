@@ -19,6 +19,16 @@ class Highscores {
     const scores = result.rows;
     return scores;
   }
+
+  static async updateHighscore(username, score) {
+    const result = await db.query(
+      `UPDATE users
+      SET highscore=$1 WHERE username = $2 
+      RETURNING highscore`,
+      [score, username]
+    );
+    return result.rows[0];
+  }
 }
 
 module.exports = Highscores;
